@@ -4,7 +4,7 @@
 
 ### -> [**Download the full EURUSD dataset on getdata.finance**](https://getdata.finance/datasets/eurusd)
 
-**EURUSD 1m OHLCV forex historical data** — ultra high-quality 1m OHLCV for **Euro / US Dollar**. Clean `time, open, high, low, close, volume` CSV for backtesting, algorithmic trading and quantitative research.
+**EURUSD 1m OHLCV forex historical data** — ultra high-quality 1m OHLCV for **Euro / US Dollar**. Clean `datetime, open, high, low, close, volume` CSV for backtesting, algorithmic trading and quantitative research.
 
 ## Table of contents
 
@@ -22,12 +22,12 @@
 ## Why this dataset?
 
 - **Ultra high-quality 1m OHLCV** for **Euro / US Dollar** (Forex)
-- **Clean CSV schema** — `time, open, high, low, close, volume` (no gaps in formatting)
+- **Clean CSV schema** — `datetime, open, high, low, close, volume` (no gaps in formatting)
 - **Free evaluation sample** on GitHub (`1m`) · **11 timeframes** on [getdata.finance](https://getdata.finance/datasets/eurusd) · **1,685,501** `1m` rows in the full archive
 - Built for **backtesting**, **algorithmic trading** and **quantitative finance** workflows
 - **Weekly refresh** — [getdata.finance](https://getdata.finance) every **Saturday, 8am UTC+0**; GitHub `1m` sample updated in sync
 
-> **Sample on GitHub** · `EURUSD_1m.csv` (55,440 rows, `2026-07-09` -> `2026-09-02`, 5.39 MB). **Full archive on [getdata.finance](https://getdata.finance/datasets/eurusd)** — **1,685,501** `1m` rows, **11 timeframes**, `2022-02-27` -> `2026-09-02`.
+> **Sample on GitHub** · `EURUSD_1m.csv` (55,440 rows, `2026-07-09` -> `2026-09-02`, 5.39 MB). **Full archive on [getdata.finance](https://getdata.finance/datasets/eurusd)** — **1,685,501** `1m` rows (full `1m`: 1,685,501), **11 timeframes**, `2022-02-27` -> `2026-09-02`.
 
 ## Download sample
 
@@ -73,7 +73,7 @@ First and latest rows from the GitHub sample **`EURUSD_1m.csv`**:
 
 **First rows**
 
-| time | open | high | low | close | volume |
+| datetime | open | high | low | close | volume |
 | --- | --- | --- | --- | --- | --- |
 | 2026-07-09T13:49:00+00:00 | 1.15512 | 1.15527 | 1.15507 | 1.15522 | 168 |
 | 2026-07-09T13:50:00+00:00 | 1.15522 | 1.15526 | 1.15509 | 1.15517 | 208 |
@@ -83,7 +83,7 @@ First and latest rows from the GitHub sample **`EURUSD_1m.csv`**:
 
 **Last rows**
 
-| time | open | high | low | close | volume |
+| datetime | open | high | low | close | volume |
 | --- | --- | --- | --- | --- | --- |
 | 2026-09-02T01:56:00+00:00 | 1.15785 | 1.15785 | 1.15774 | 1.15774 | 47 |
 | 2026-09-02T01:57:00+00:00 | 1.15774 | 1.15776 | 1.15774 | 1.15775 | 41 |
@@ -95,7 +95,7 @@ First and latest rows from the GitHub sample **`EURUSD_1m.csv`**:
 
 | Column | Description |
 | --- | --- |
-| `time` | Bar open timestamp (UTC, ISO-8601). |
+| `datetime` | Bar open timestamp (UTC, ISO-8601). |
 | `open` | Opening price of the candlestick bar. |
 | `high` | Highest price during the bar. |
 | `low` | Lowest price during the bar. |
@@ -103,7 +103,7 @@ First and latest rows from the GitHub sample **`EURUSD_1m.csv`**:
 | `volume` | Tick volume (number of price updates) during the bar. |
 
 ```text
-time,open,high,low,close,volume
+datetime,open,high,low,close,volume
 ```
 
 ## Code examples
@@ -113,11 +113,9 @@ time,open,high,low,close,volume
 ```python
 import pandas as pd
 
-df = pd.read_csv('EURUSD_1m.csv', parse_dates=['time'])
-df.set_index('time', inplace=True)
+df = pd.read_csv('EURUSD_1m.csv', parse_dates=['datetime'])
+df.set_index('datetime', inplace=True)
 print(df.describe())
-print(df.resample('1h').agg({'open': 'first', 'high': 'max',
-                              'low': 'min', 'close': 'last', 'volume': 'sum'}).head())
 ```
 
 ### backtrader
@@ -126,8 +124,8 @@ print(df.resample('1h').agg({'open': 'first', 'high': 'max',
 import backtrader as bt
 import pandas as pd
 
-df = pd.read_csv('EURUSD_1m.csv', parse_dates=['time'])
-df.set_index('time', inplace=True)
+df = pd.read_csv('EURUSD_1m.csv', parse_dates=['datetime'])
+df.set_index('datetime', inplace=True)
 
 class PandasData(bt.feeds.PandasData):
     params = (('datetime', None), ('open', 'open'), ('high', 'high'),
@@ -145,8 +143,8 @@ cerebro.adddata(PandasData(dataname=df))
 import pandas as pd
 import vectorbt as vbt
 
-df = pd.read_csv('EURUSD_1m.csv', parse_dates=['time'])
-close = df.set_index('time')['close']
+df = pd.read_csv('EURUSD_1m.csv', parse_dates=['datetime'])
+close = df.set_index('datetime')['close']
 fast, slow = vbt.MA.run(close, 10), vbt.MA.run(close, 50)
 entries = fast.ma_crossed_above(slow)
 exits = fast.ma_crossed_below(slow)
